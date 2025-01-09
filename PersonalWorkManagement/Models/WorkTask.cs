@@ -23,16 +23,12 @@ namespace PersonalWorkManagement.Models
         [Required]
         public StatusTask Status { get; set; }
 
-        public DateTime? ReminderTime { get; set; }
+        public int ReminderTime { get; set; }
 
         [Required]
         public Guid UserId { get; set; }
 
         public virtual User? User { get; set; }
-
-
-        public Guid? ApointmentId { get; set; }  
-        public virtual Apointment? Apointment { get; set; } 
 
         public bool IsValidDateTime => StartDateTask < EndDateTask;
     }

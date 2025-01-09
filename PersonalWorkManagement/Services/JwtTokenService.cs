@@ -26,7 +26,7 @@ namespace PersonalWorkManagement.Services
                 new Claim("UserName", user.UserName),
                 new Claim("Email", user.UserName),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim("Expire", _jwtSettings.ExpireMinutes.ToString())
+                new Claim("Expire", DateTime.UtcNow.AddMinutes(_jwtSettings.ExpireMinutes).ToString()) 
             };
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.SecretKey));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

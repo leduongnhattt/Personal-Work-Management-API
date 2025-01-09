@@ -10,9 +10,12 @@ namespace PersonalWorkManagement.Services
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
         {
+            services.AddHttpContextAccessor();
             services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
             services.AddScoped<UserService>();
+            services.AddScoped<WorkTaskServices>();
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IWorkTaskRepository, WorkTaskRepository>();
             services.AddScoped<IJwtTokenService, JwtTokenService>();
             services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
             services.AddDbContext<ApplicationDbContext>(options =>
