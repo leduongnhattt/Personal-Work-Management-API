@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PersonalWorkManagement.DTOs;
 using PersonalWorkManagement.Services;
+using System.Security.Claims;
 
 namespace PersonalWorkManagement.Controllers
 {
@@ -51,5 +52,19 @@ namespace PersonalWorkManagement.Controllers
 
             return Ok(new { Token = response.Data, Message = response.Message, Status = "Success" });
         }
+        [Authorize]
+        [HttpGet("profile")]
+        public async Task<IActionResult> GetUser()
+        {
+
+            var response = await _userService.GetUserProfile();
+            if (!response.Success)
+            {
+                return BadRequest(new { Status = "Failed", Message = response.Message });
+            }
+
+            return Ok(new { Token = response.Data, Message = response.Message, Status = "Success" });
+        }
     }
+    
 }

@@ -54,8 +54,7 @@ namespace PersonalWorkManagement.Services
             return response;
         }
 
-        // Public method to update an existing work task
-        public async Task<ServiceResponse<string>> UpdateWorkTaskAsync(Guid workTaskId, WorkTaskDTO workTaskDTO)
+        public async Task<ServiceResponse<string>> UpdateWorkTaskAsync(Guid workTaskId, WorkTaskUpdateDTO workTaskDTO)
         {
             var response = new ServiceResponse<string>();
 
@@ -141,6 +140,7 @@ namespace PersonalWorkManagement.Services
             }
             response.Data = workTasks.Select(wt => new WorkTaskDTO
             {
+                WorkTaskId = wt.WorkTaskId,
                 Title = wt.Title,
                 Description = wt.Description,
                 StartDateTask = wt.StartDateTask,
@@ -171,6 +171,7 @@ namespace PersonalWorkManagement.Services
             }
             response.Data = new WorkTaskDTO
             {
+                WorkTaskId = workTaskId,
                 Title = workTask.Title,
                 Description = workTask.Description,
                 StartDateTask = workTask.StartDateTask,
@@ -211,7 +212,7 @@ namespace PersonalWorkManagement.Services
         }
 
         // Private helper method to update a WorkTask instance with new data
-        private void UpdateWorkTask(WorkTask workTask, WorkTaskDTO workTaskDTO, StatusTask status)
+        private void UpdateWorkTask(WorkTask workTask, WorkTaskUpdateDTO workTaskDTO, StatusTask status)
         {
             workTask.Title = workTaskDTO.Title;
             workTask.Description = workTaskDTO.Description;

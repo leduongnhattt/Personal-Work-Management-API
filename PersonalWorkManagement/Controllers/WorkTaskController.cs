@@ -32,6 +32,7 @@ namespace PersonalWorkManagement.Controllers
 
             return BadRequest(response.Message);
         }
+        [Authorize]
         [HttpGet("allTask")]
         public async Task<ActionResult> GetAllTask()
         {
@@ -39,12 +40,13 @@ namespace PersonalWorkManagement.Controllers
 
             if (response.Success)
             {
-                return Ok(response.Message);
+                return Ok(new { Message = response.Message, Data = response.Data });
             }
             return BadRequest(response.Message);
         }
-        [HttpPut("{workTaskId}")]
-        public async Task<ActionResult> UpdateWorkTask(Guid workTaskId, [FromBody] WorkTaskDTO workTaskDTO)
+        [Authorize]
+        [HttpPut("updateTask/{workTaskId}")]
+        public async Task<ActionResult> UpdateWorkTask(Guid workTaskId, [FromBody] WorkTaskUpdateDTO workTaskDTO)
         {
             if (workTaskDTO == null)
             {
@@ -58,12 +60,13 @@ namespace PersonalWorkManagement.Controllers
 
             if (response.Success)
             {
-                return Ok(response.Message);
+                return Ok(new { Message = response.Message });
             }
 
             return BadRequest(response.Message);
         }
-        [HttpDelete("{workTaskId}")]
+        [Authorize]
+        [HttpDelete("deleteTask/{workTaskId}")]
         public async Task<IActionResult> DeleteWorkTask(Guid workTaskId)
         {
             var response = await _workTaskServices.DeleteWorkTaskAsync(workTaskId);
@@ -71,6 +74,19 @@ namespace PersonalWorkManagement.Controllers
             if (response.Success)
             {
                 return Ok(response.Message);
+            }
+
+            return BadRequest(response.Message);
+        }
+        [Authorize]
+        [HttpGet("getTaskById/{workTaskId}")]
+        public async Task<IActionResult> GetTaskById(Guid workTaskId)
+        {
+            var response = await _workTaskServices.GetWorkTaskByIdAsync(workTaskId);
+
+            if (response.Success)
+            {
+                return Ok(new { Message = response.Message, Data = response.Data });
             }
 
             return BadRequest(response.Message);

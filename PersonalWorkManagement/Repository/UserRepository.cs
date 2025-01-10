@@ -22,6 +22,15 @@ namespace PersonalWorkManagement.Repository
             await _context.SaveChangesAsync();
         }
 
+        public async Task<User?> GetUserById(Guid userId)
+        {
+            if (userId == null)
+            {
+                throw new ArgumentNullException(nameof(userId));
+            }
+            return await _context.Users.FirstOrDefaultAsync(x => x.UserId == userId);
+        }
+
         public async Task<User?> GetUserByUserName(string username)
         {
             if (string.IsNullOrWhiteSpace(username))

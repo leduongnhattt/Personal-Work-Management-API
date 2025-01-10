@@ -1,12 +1,7 @@
-﻿using PersonalWorkManagement.Models;
-using System.ComponentModel.DataAnnotations;
-
-namespace PersonalWorkManagement.DTOs
+﻿namespace PersonalWorkManagement.DTOs
 {
-    public class WorkTaskDTO
+    public class WorkTaskUpdateDTO
     {
-        public Guid WorkTaskId { get; set; }
-
         public string? Title { get; set; }
 
         public string? Description { get; set; }
