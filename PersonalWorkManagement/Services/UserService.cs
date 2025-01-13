@@ -15,6 +15,7 @@ namespace PersonalWorkManagement.Services
         private readonly IPasswordHasher<User> _passwordHasher;
         private readonly IJwtTokenService _jwtTokenService;
         private readonly IHttpContextAccessor _contextAccessor;
+        private readonly string _imageFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
 
         public UserService(IUserRepository userRepository, IPasswordHasher<User> passwordHasher, IJwtTokenService jwtTokenService, IHttpContextAccessor contextAccessor)
         {
@@ -99,11 +100,76 @@ namespace PersonalWorkManagement.Services
                 UserId = currentUserId,
                 UserName = user.UserName,
                 Email = user.Email,
-                SDT = user.SDT
+                SDT = user.SDT,
+                Image = user.ImageUrl
             };
             response.Success = true;
             response.Data = data;
             return response;
         }
+        public async Task<ServiceResponse<UpdateUserDTO>> UpdateUserAsync(UpdateUserDTO updateUserProfileDTO, IFormFile? imageFile)
+        {
+            var response = new ServiceResponse<UpdateUserDTO>();
+            var currentUserId = GetCurrentUserId();
+
+            var existingUser = await _userRepository.GetUserById(currentUserId);
+
+            if (existingUser == null)
+            {
+                response.Success = false;
+                response.Message = "User not found.";
+                return response;
+            }
+
+            if (!string.IsNullOrEmpty(updateUserProfileDTO.UserName)) existingUser.UserName = updateUserProfileDTO.UserName;
+            if (!string.IsNullOrEmpty(updateUserProfileDTO.Email)) existingUser.Email = updateUserProfileDTO.Email;
+            if (!string.IsNullOrEmpty(updateUserProfileDTO.SDT)) existingUser.SDT = updateUserProfileDTO.SDT;
+
+            if (imageFile != null && imageFile.Length > 0)
+            {
+                // Ensure the directory exists
+                if (!Directory.Exists(_imageFolderPath))
+                {
+                    Directory.CreateDirectory(_imageFolderPath);
+                }
+
+                var filePath = Path.Combine(_imageFolderPath, Guid.NewGuid().ToString() + Path.GetExtension(imageFile.FileName));
+
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await imageFile.CopyToAsync(fileStream);
+                }
+
+                existingUser.ImageUrl = "/images/" + Path.GetFileName(filePath);
+            }
+
+            await _userRepository.UpdateUserAsync(existingUser);
+            response.Data = new UpdateUserDTO
+            {
+                UserName = existingUser.UserName,
+                Email = existingUser.Email,
+                SDT = existingUser.SDT,
+                ImageUrl = existingUser.ImageUrl
+            };
+
+            response.Success = true;
+            response.Message = "Profile updated successfully.";
+            return response;
+        }
+
+
+        private Guid GetCurrentUserId()
+        {
+            var userIdClaim = _contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)
+                               ?? _contextAccessor.HttpContext.User.FindFirst(JwtRegisteredClaimNames.Sub);
+
+            if (userIdClaim == null)
+            {
+                throw new UnauthorizedAccessException("User not authenticated!");
+            }
+
+            return Guid.Parse(userIdClaim.Value);
+        }
+
     }
 }

@@ -65,6 +65,20 @@ namespace PersonalWorkManagement.Controllers
 
             return Ok(new { Token = response.Data, Message = response.Message, Status = "Success" });
         }
+        [Authorize]
+        [HttpPut("profile")]
+        public async Task<IActionResult> UpdateUserProfile([FromForm] UpdateUserDTO updateUserDTO, IFormFile? imageFile)
+        {
+
+            var response = await _userService.UpdateUserAsync(updateUserDTO, imageFile);
+
+            if (!response.Success)
+            {
+                return BadRequest(new { Status = "Failed", Message = response.Message });
+            }
+
+            return Ok(new { Status = "Success", Message = response.Message, Data = response.Data });
+        }
     }
     
 }

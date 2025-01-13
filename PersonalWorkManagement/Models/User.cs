@@ -19,6 +19,8 @@ namespace PersonalWorkManagement.Models
 
         public string PasswordHash { get; set; }
 
+        public string? ImageUrl { get; set; }
+
         public DateTime CreatedAt { get; set; }
     }
 }

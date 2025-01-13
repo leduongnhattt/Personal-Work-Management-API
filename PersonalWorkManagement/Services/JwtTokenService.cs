@@ -24,7 +24,8 @@ namespace PersonalWorkManagement.Services
             var claims = new List<Claim> {
                 new Claim(JwtRegisteredClaimNames.Sub, user.UserId.ToString()),
                 new Claim("UserName", user.UserName),
-                new Claim("Email", user.UserName),
+                new Claim("Email", user.Email),
+                new Claim("Image", user.ImageUrl),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim("Expire", DateTime.UtcNow.AddMinutes(_jwtSettings.ExpireMinutes).ToString()) 
             };

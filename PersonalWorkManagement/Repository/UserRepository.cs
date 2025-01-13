@@ -40,21 +40,22 @@ namespace PersonalWorkManagement.Repository
             return await _context.Users.FirstOrDefaultAsync(x => x.UserName == username);
         }
 
-        public async Task UpdateUserAsync(User user)
+        public async Task UpdateUserAsync(User updatedUser)
         {
-            if (user == null)
+            if (updatedUser == null)
             {
-                throw new ArgumentNullException(nameof(user), "User cannot be null");
+                throw new ArgumentNullException(nameof(updatedUser), "User cannot be null");
             }
-            var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.UserId == user.UserId);
+            var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.UserId == updatedUser.UserId);
             if (existingUser == null)
             {
                 throw new KeyNotFoundException("User not found.");
             }
+            existingUser.UserName = updatedUser.UserName ?? existingUser.UserName;
+            existingUser.Email = updatedUser.Email ?? existingUser.Email;
+            existingUser.SDT = updatedUser.SDT ?? existingUser.SDT;
+            existingUser.ImageUrl = updatedUser.ImageUrl ?? existingUser.ImageUrl;
 
-            existingUser.UserName = user.UserName;
-            existingUser.Email = user.Email;
-            existingUser.PasswordHash = user.PasswordHash;
 
             _context.Users.Update(existingUser);
             await _context.SaveChangesAsync();
