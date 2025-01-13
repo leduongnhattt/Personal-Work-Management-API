@@ -6,6 +6,7 @@ namespace PersonalWorkManagement.Repository
     {
         Task<User?> GetUserByUserName(string username);
         Task CreateUserAsync(User user);
-        Task UpdateUserAsync(User user);
+        Task UpdateUserAsync(User updatedUser);
+        Task<User?> GetUserById(Guid userId);
     }
 }

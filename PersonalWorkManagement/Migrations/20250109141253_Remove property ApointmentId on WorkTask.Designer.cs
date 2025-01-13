@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PersonalWorkManagement.Models;
 
@@ -11,9 +12,11 @@ using PersonalWorkManagement.Models;
 namespace PersonalWorkManagement.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250109141253_Remove property ApointmentId on WorkTask")]
+    partial class RemovepropertyApointmentIdonWorkTask
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -39,8 +42,8 @@ namespace PersonalWorkManagement.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.Property<int>("ReminderTime")
-                        .HasColumnType("int");
+                    b.Property<DateTime?>("ReminderTime")
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime>("StartDateTask")
                         .HasColumnType("datetime2");
@@ -101,14 +104,7 @@ namespace PersonalWorkManagement.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("ImageUrl")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("PasswordHash")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SDT")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -135,8 +131,8 @@ namespace PersonalWorkManagement.Migrations
                     b.Property<DateTime>("EndDateTask")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("ReminderTime")
-                        .HasColumnType("int");
+                    b.Property<DateTime?>("ReminderTime")
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime>("StartDateTask")
                         .HasColumnType("datetime2");

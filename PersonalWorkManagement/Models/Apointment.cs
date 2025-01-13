@@ -23,7 +23,7 @@ namespace PersonalWorkManagement.Models
         [Required]
         public DateTime EndDateTask { get; set; }
 
-        public DateTime? ReminderTime { get; set; }
+        public int ReminderTime { get; set; }
 
         [Required]
         public Guid UserId { get; set; }

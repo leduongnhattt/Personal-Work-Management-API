@@ -15,7 +15,11 @@ namespace PersonalWorkManagement.Models
         [StringLength(100)]
         public string Email { get; set; }
 
+        public string SDT { get; set; }
+
         public string PasswordHash { get; set; }
+
+        public string? ImageUrl { get; set; }
 
         public DateTime CreatedAt { get; set; }
     }
