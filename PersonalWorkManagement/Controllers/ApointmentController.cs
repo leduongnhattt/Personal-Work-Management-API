@@ -8,23 +8,24 @@ namespace PersonalWorkManagement.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class WorkTaskController : ControllerBase
+    public class ApointmentController : ControllerBase
     {
-        private readonly WorkTaskServices _workTaskServices;
-        public WorkTaskController(WorkTaskServices workTaskServices)
+        private readonly ApointmentService _apointmentService;
+
+        public ApointmentController(ApointmentService apointmentService)
         {
-            _workTaskServices = workTaskServices;
+            _apointmentService = apointmentService;
         }
 
         [Authorize]
-        [HttpPost("addwork")]
-        public async Task<ActionResult> AddWorkTask([FromBody] AddWorkTaskDTO workTaskDTO)
+        [HttpPost("addApointment")]
+        public async Task<ActionResult> AddApointment([FromBody] UpdateApointmentDTO apointmentDTO)
         {
-            if (workTaskDTO == null)
+            if (apointmentDTO == null)
             {
                 return BadRequest("Invalid task data.");
             }
-            var response = await _workTaskServices.AddWorkTaskAsync(workTaskDTO);
+            var response = await _apointmentService.AddApointmentAsync(apointmentDTO);
             if (!response.Success)
             {
                 return BadRequest(response.Message);
@@ -33,10 +34,10 @@ namespace PersonalWorkManagement.Controllers
             return Ok(new { Status = "Success", Message = response.Message });
         }
         [Authorize]
-        [HttpGet("allTask")]
-        public async Task<ActionResult> GetAllTask()
+        [HttpGet("allApointment")]
+        public async Task<ActionResult> GetAllApointments()
         {
-            var response = await _workTaskServices.GetAllWorkTaskAsync();
+            var response = await _apointmentService.GetAllApointmentAsync();
 
             if (response.Success)
             {
@@ -45,18 +46,18 @@ namespace PersonalWorkManagement.Controllers
             return BadRequest(response.Message);
         }
         [Authorize]
-        [HttpPut("updateTask/{workTaskId}")]
-        public async Task<ActionResult> UpdateWorkTask(Guid workTaskId, [FromBody] UpdateWorkTaskDTO workTaskDTO)
+        [HttpPut("updateApointment/{apointmentId}")]
+        public async Task<ActionResult> UpdateApointment(Guid apointmentId, [FromBody] UpdateApointmentDTO updateApointmentDTO)
         {
-            if (workTaskDTO == null)
+            if (updateApointmentDTO == null)
             {
                 return BadRequest("Invalid task data.");
             }
-            if (workTaskId == Guid.Empty)
+            if (apointmentId == Guid.Empty)
             {
                 return BadRequest("Invalid task id");
             }
-            var response = await _workTaskServices.UpdateWorkTaskAsync(workTaskId, workTaskDTO);
+            var response = await _apointmentService.UpdateApointmentAsync(apointmentId, updateApointmentDTO);
 
             if (response.Success)
             {
@@ -66,10 +67,10 @@ namespace PersonalWorkManagement.Controllers
             return BadRequest(response.Message);
         }
         [Authorize]
-        [HttpDelete("deleteTask/{workTaskId}")]
-        public async Task<IActionResult> DeleteWorkTask(Guid workTaskId)
+        [HttpDelete("deleteApointment/{apointmentId}")]
+        public async Task<IActionResult> DeleteApointment(Guid apointmentId)
         {
-            var response = await _workTaskServices.DeleteWorkTaskAsync(workTaskId);
+            var response = await _apointmentService.DeleteApointmentAsync(apointmentId);
 
             if (response.Success)
             {
@@ -79,10 +80,10 @@ namespace PersonalWorkManagement.Controllers
             return BadRequest(response.Message);
         }
         [Authorize]
-        [HttpGet("getTaskById/{workTaskId}")]
-        public async Task<IActionResult> GetTaskById(Guid workTaskId)
+        [HttpGet("getApointment/{apointmentId}")]
+        public async Task<IActionResult> GetApointmentById(Guid apointmentId)
         {
-            var response = await _workTaskServices.GetWorkTaskByIdAsync(workTaskId);
+            var response = await _apointmentService.GetApointmentByIdAsync(apointmentId);
 
             if (response.Success)
             {

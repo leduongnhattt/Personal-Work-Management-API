@@ -18,10 +18,10 @@ namespace PersonalWorkManagement.Models
         public string? Location { get; set; }
 
         [Required]
-        public DateTime StartDateTask { get; set; }
+        public DateTime StartDateApoint { get; set; }
 
         [Required]
-        public DateTime EndDateTask { get; set; }
+        public DateTime EndDateApoint { get; set; }
 
         public int ReminderTime { get; set; }
 

@@ -148,8 +148,7 @@ namespace PersonalWorkManagement.Services
             {
                 UserName = existingUser.UserName,
                 Email = existingUser.Email,
-                SDT = existingUser.SDT,
-                ImageUrl = existingUser.ImageUrl
+                SDT = existingUser.SDT
             };
 
             response.Success = true;

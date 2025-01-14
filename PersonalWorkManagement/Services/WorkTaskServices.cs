@@ -16,7 +16,7 @@ namespace PersonalWorkManagement.Services
             _workTaskRepository = workTaskRepository;
             _contextAccessor = contextAccessor;
         }
-        public async Task<ServiceResponse<string>> AddWorkTaskAsync(WorkTaskDTO workTaskDTO)
+        public async Task<ServiceResponse<string>> AddWorkTaskAsync(AddWorkTaskDTO workTaskDTO)
         {
             var response = new ServiceResponse<string>();
 
@@ -54,7 +54,7 @@ namespace PersonalWorkManagement.Services
             return response;
         }
 
-        public async Task<ServiceResponse<string>> UpdateWorkTaskAsync(Guid workTaskId, WorkTaskUpdateDTO workTaskDTO)
+        public async Task<ServiceResponse<string>> UpdateWorkTaskAsync(Guid workTaskId, UpdateWorkTaskDTO workTaskDTO)
         {
             var response = new ServiceResponse<string>();
 
@@ -196,7 +196,7 @@ namespace PersonalWorkManagement.Services
 
             return Guid.TryParse(userIdClaim.Value, out var userId) ? userId : (Guid?)null;
         }
-        private WorkTask CreateWorkTask(WorkTaskDTO workTaskDTO, Guid userId, StatusTask status)
+        private WorkTask CreateWorkTask(AddWorkTaskDTO workTaskDTO, Guid userId, StatusTask status)
         {
             return new WorkTask
             {
@@ -212,7 +212,7 @@ namespace PersonalWorkManagement.Services
         }
 
         // Private helper method to update a WorkTask instance with new data
-        private void UpdateWorkTask(WorkTask workTask, WorkTaskUpdateDTO workTaskDTO, StatusTask status)
+        private void UpdateWorkTask(WorkTask workTask, UpdateWorkTaskDTO workTaskDTO, StatusTask status)
         {
             workTask.Title = workTaskDTO.Title;
             workTask.Description = workTaskDTO.Description;

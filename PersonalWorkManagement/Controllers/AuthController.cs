@@ -63,7 +63,7 @@ namespace PersonalWorkManagement.Controllers
                 return BadRequest(new { Status = "Failed", Message = response.Message });
             }
 
-            return Ok(new { Token = response.Data, Message = response.Message, Status = "Success" });
+            return Ok(new { Data = response.Data, Message = response.Message, Status = "Success" });
         }
         [Authorize]
         [HttpPut("profile")]
