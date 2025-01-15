@@ -34,6 +34,12 @@ namespace PersonalWorkManagement.Services
                 response.Message = "User not authenticated!";
                 return response;
             }
+            if (IsNull(apointmentDTO))
+            {
+                response.Success = false;
+                response.Message = "You must to text all fields";
+                return response;
+            }
             var apointment = new Apointment
             {
                 ApointmentId = Guid.NewGuid(),
@@ -189,6 +195,15 @@ namespace PersonalWorkManagement.Services
             apointment.EndDateApoint = updateApointmentDTO.EndDateApoint;
             apointment.Location = updateApointmentDTO.Location;
             apointment.ReminderTime = updateApointmentDTO.ReminderTime;
+        }
+        private bool IsNull(UpdateApointmentDTO apointmentDTO)
+        {
+            return String.IsNullOrWhiteSpace(apointmentDTO.Title) ||
+                   apointmentDTO.ReminderTime == null || 
+                   apointmentDTO.EndDateApoint == null || 
+                   apointmentDTO.StartDateApoint == null ||
+                   String.IsNullOrWhiteSpace(apointmentDTO.Location) ||
+                   String.IsNullOrWhiteSpace(apointmentDTO.Description);
         }
     }
 }

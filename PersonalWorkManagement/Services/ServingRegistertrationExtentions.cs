@@ -15,9 +15,11 @@ namespace PersonalWorkManagement.Services
             services.AddScoped<UserService>();
             services.AddScoped<WorkTaskServices>();
             services.AddScoped<ApointmentService>();
+            services.AddScoped<NoteService>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IWorkTaskRepository, WorkTaskRepository>();
             services.AddScoped<IApointmentRepository, ApointmentRepository>();
+            services.AddScoped<INoteRepository, NoteRepository>();
             services.AddScoped<IJwtTokenService, JwtTokenService>();
             services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
             services.AddDbContext<ApplicationDbContext>(options =>
