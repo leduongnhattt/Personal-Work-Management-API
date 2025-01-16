@@ -55,7 +55,7 @@ namespace PersonalWorkManagement.Repository
             existingUser.Email = updatedUser.Email ?? existingUser.Email;
             existingUser.SDT = updatedUser.SDT ?? existingUser.SDT;
             existingUser.ImageUrl = updatedUser.ImageUrl ?? existingUser.ImageUrl;
-
+            existingUser.PasswordHash = updatedUser.PasswordHash ?? existingUser.PasswordHash;
 
             _context.Users.Update(existingUser);
             await _context.SaveChangesAsync();

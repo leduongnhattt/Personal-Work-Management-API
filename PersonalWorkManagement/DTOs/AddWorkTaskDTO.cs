@@ -1,6 +1,6 @@
 ﻿namespace PersonalWorkManagement.DTOs
 {
-    public class WorkTaskUpdateDTO
+    public class AddWorkTaskDTO
     {
         public string? Title { get; set; }
 

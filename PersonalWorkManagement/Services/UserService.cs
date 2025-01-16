@@ -148,15 +148,42 @@ namespace PersonalWorkManagement.Services
             {
                 UserName = existingUser.UserName,
                 Email = existingUser.Email,
-                SDT = existingUser.SDT,
-                ImageUrl = existingUser.ImageUrl
+                SDT = existingUser.SDT
             };
 
             response.Success = true;
             response.Message = "Profile updated successfully.";
             return response;
         }
+        public async Task<ServiceResponse<string>> UpdatePasswordAsync(UpdatePasswordUserDTO updatePasswordUserDTO)
+        {
+            var response = new ServiceResponse<string>();
 
+            var currentUserId = GetCurrentUserId();
+
+            var existingUser = await _userRepository.GetUserById(currentUserId);
+
+            if (existingUser == null)
+            {
+                response.Success = false;
+                response.Message = "User not found.";
+                return response;
+            }
+            var verifyResult = _passwordHasher.VerifyHashedPassword(existingUser, existingUser.PasswordHash, updatePasswordUserDTO.OldPassword);
+
+            if (verifyResult == PasswordVerificationResult.Failed)
+            {
+                response.Success = false;
+                response.Message = "Old password is incorrect.";
+                return response;
+            }
+            existingUser.PasswordHash = _passwordHasher.HashPassword(existingUser, updatePasswordUserDTO.NewPassword);
+            await _userRepository.UpdateUserAsync(existingUser);
+
+            response.Success = true;
+            response.Message = "Password updated successfully.";
+            return response;
+        }
 
         private Guid GetCurrentUserId()
         {

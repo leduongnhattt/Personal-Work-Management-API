@@ -8,23 +8,24 @@ namespace PersonalWorkManagement.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class WorkTaskController : ControllerBase
+    public class NoteController : ControllerBase
     {
-        private readonly WorkTaskServices _workTaskServices;
-        public WorkTaskController(WorkTaskServices workTaskServices)
+        private readonly NoteService _noteService;
+
+        public NoteController(NoteService noteService)
         {
-            _workTaskServices = workTaskServices;
+            _noteService = noteService;
         }
 
         [Authorize]
-        [HttpPost("addwork")]
-        public async Task<ActionResult> AddWorkTask([FromBody] AddWorkTaskDTO workTaskDTO)
+        [HttpPost("addNote")]
+        public async Task<ActionResult> AddNote([FromBody] UpdateNoteDTO noteDTO)
         {
-            if (workTaskDTO == null)
+            if (noteDTO == null)
             {
                 return BadRequest("Invalid task data.");
             }
-            var response = await _workTaskServices.AddWorkTaskAsync(workTaskDTO);
+            var response = await _noteService.AddNoteAsync(noteDTO);
             if (!response.Success)
             {
                 return BadRequest(response.Message);
@@ -33,10 +34,10 @@ namespace PersonalWorkManagement.Controllers
             return Ok(new { Status = "Success", Message = response.Message });
         }
         [Authorize]
-        [HttpGet("allTask")]
-        public async Task<ActionResult> GetAllTask()
+        [HttpGet("allNote")]
+        public async Task<ActionResult> GetAllNotes()
         {
-            var response = await _workTaskServices.GetAllWorkTaskAsync();
+            var response = await _noteService.GetAllNoteAsync();
 
             if (response.Success)
             {
@@ -45,18 +46,18 @@ namespace PersonalWorkManagement.Controllers
             return BadRequest(response.Message);
         }
         [Authorize]
-        [HttpPut("updateTask/{workTaskId}")]
-        public async Task<ActionResult> UpdateWorkTask(Guid workTaskId, [FromBody] UpdateWorkTaskDTO workTaskDTO)
+        [HttpPut("updateNote/{noteId}")]
+        public async Task<ActionResult> UpdateNote(Guid noteId, [FromBody] UpdateNoteDTO updateNoteDTO)
         {
-            if (workTaskDTO == null)
+            if (updateNoteDTO == null)
             {
                 return BadRequest("Invalid task data.");
             }
-            if (workTaskId == Guid.Empty)
+            if (noteId == Guid.Empty)
             {
                 return BadRequest("Invalid task id");
             }
-            var response = await _workTaskServices.UpdateWorkTaskAsync(workTaskId, workTaskDTO);
+            var response = await _noteService.UpdateNotesAsync(noteId, updateNoteDTO);
 
             if (response.Success)
             {
@@ -66,10 +67,10 @@ namespace PersonalWorkManagement.Controllers
             return BadRequest(response.Message);
         }
         [Authorize]
-        [HttpDelete("deleteTask/{workTaskId}")]
-        public async Task<IActionResult> DeleteWorkTask(Guid workTaskId)
+        [HttpDelete("deleteNote/{noteId}")]
+        public async Task<IActionResult> DeleteNote(Guid noteId)
         {
-            var response = await _workTaskServices.DeleteWorkTaskAsync(workTaskId);
+            var response = await _noteService.DeleteNoteAsync(noteId);
 
             if (response.Success)
             {
@@ -79,10 +80,10 @@ namespace PersonalWorkManagement.Controllers
             return BadRequest(response.Message);
         }
         [Authorize]
-        [HttpGet("getTaskById/{workTaskId}")]
-        public async Task<IActionResult> GetTaskById(Guid workTaskId)
+        [HttpGet("getNote/{noteId}")]
+        public async Task<IActionResult> GetNoteById(Guid noteId)
         {
-            var response = await _workTaskServices.GetWorkTaskByIdAsync(workTaskId);
+            var response = await _noteService.GetNoteByIdAsync(noteId);
 
             if (response.Success)
             {

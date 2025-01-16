@@ -63,7 +63,7 @@ namespace PersonalWorkManagement.Controllers
                 return BadRequest(new { Status = "Failed", Message = response.Message });
             }
 
-            return Ok(new { Token = response.Data, Message = response.Message, Status = "Success" });
+            return Ok(new { Data = response.Data, Message = response.Message, Status = "Success" });
         }
         [Authorize]
         [HttpPut("profile")]
@@ -77,7 +77,21 @@ namespace PersonalWorkManagement.Controllers
                 return BadRequest(new { Status = "Failed", Message = response.Message });
             }
 
-            return Ok(new { Status = "Success", Message = response.Message, Data = response.Data });
+            return Ok(new { Status = "Success", Message = response.Message});
+        }
+        [Authorize]
+        [HttpPut("password")]
+        public async Task<IActionResult> UpdatePassword([FromBody] UpdatePasswordUserDTO updatePasswordUserDTO)
+        {
+
+            var response = await _userService.UpdatePasswordAsync(updatePasswordUserDTO);
+
+            if (!response.Success)
+            {
+                return BadRequest(new { Status = "Failed", Message = response.Message });
+            }
+
+            return Ok(new { Status = "Success", Message = response.Message});
         }
     }
     

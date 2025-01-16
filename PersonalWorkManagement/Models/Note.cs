@@ -5,7 +5,7 @@ namespace PersonalWorkManagement.Models
     public class Note
     {
         [Key]
-        public Guid Id { get; set; }
+        public Guid NoteId { get; set; }
 
         public string Title { get; set; }
 
