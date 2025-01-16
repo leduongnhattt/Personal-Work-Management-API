@@ -76,10 +76,10 @@ namespace PersonalWorkManagement.Services
             }
             var apointment = await _repository.GetApointmentByIdAsync(apointmentId, currentUserId.Value);
 
-            if (apointment == null || apointment.UserId != currentUserId)
+            if (apointment == null || apointment.UserId != currentUserId.Value)
             {
                 response.Success = false;
-                response.Message = "Apointment not found or you're not authorized to update this task.";
+                response.Message = "Apointment not found or you're not authorized to update this apointment.";
                 return response;
             }
             UpdateApointment(apointment, updateApointmentDTO);
@@ -101,10 +101,10 @@ namespace PersonalWorkManagement.Services
             }
             var currentUserId = await GetAuthenticatedUserIdAsync();
             var apointment = await _repository.GetApointmentByIdAsync(apointmentId, currentUserId.Value);
-            if (apointment == null || apointment.UserId != currentUserId)
+            if (apointment == null || apointment.UserId != currentUserId.Value)
             {
                 response.Success = false;
-                response.Message = "Apointment not found or you're not authorized to update this task.";
+                response.Message = "Apointment not found or you're not authorized to delete this apointment.";
                 return response;
             }
             await _repository.DeleteApointmentAsync(apointmentId);
@@ -157,7 +157,7 @@ namespace PersonalWorkManagement.Services
             if (apointment == null || apointment.UserId != currentUserId)
             {
                 response.Success = false;
-                response.Message = "Apointment not found or you're not authorized to view this task.";
+                response.Message = "Apointment not found or you're not authorized to view this apointment.";
                 return response;
             }
             response.Data = new ApointmentDTO

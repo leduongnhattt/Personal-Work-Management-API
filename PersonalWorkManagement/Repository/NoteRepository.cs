@@ -26,6 +26,7 @@ namespace PersonalWorkManagement.Repository
                 throw new NotImplementedException();
             }
             _context.Notes.Remove(note);
+            await _context.SaveChangesAsync();
         }
 
         public async Task<List<Note>> GetAllNotesAsync(Guid userId)
@@ -35,7 +36,7 @@ namespace PersonalWorkManagement.Repository
 
         public async Task<Note> GetNoteByIdAsync(Guid noteId, Guid userId)
         {
-            return await _context.Notes.FirstOrDefaultAsync(x => x.UserId == userId && x.NoteId == noteId);
+            return await _context.Notes.FirstOrDefaultAsync(x => x.NoteId == noteId && x.UserId == userId);
         }
 
         public async Task UpdateNoteAsync(Note note)

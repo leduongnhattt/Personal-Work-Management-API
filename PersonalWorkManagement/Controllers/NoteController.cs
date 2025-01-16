@@ -57,7 +57,7 @@ namespace PersonalWorkManagement.Controllers
             {
                 return BadRequest("Invalid task id");
             }
-            var response = await _noteService.UpdateNoteAsync(noteId, updateNoteDTO);
+            var response = await _noteService.UpdateNotesAsync(noteId, updateNoteDTO);
 
             if (response.Success)
             {
