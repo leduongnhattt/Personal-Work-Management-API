@@ -38,7 +38,7 @@ namespace PersonalWorkManagement.Services
                 NoteId = Guid.NewGuid(),
                 Title = noteDTO.Title,
                 Content = noteDTO.Content,
-                CreatedAt = noteDTO.CreatedAt,
+                CreatedAt = DateTime.UtcNow,
                 UserId = currentUserId.Value,
             };
             await _noteRepository.CreateNoteAsync(note);
@@ -151,13 +151,13 @@ namespace PersonalWorkManagement.Services
         }
         private bool isNull(UpdateNoteDTO noteDTO)
         {
-            return String.IsNullOrEmpty(noteDTO.Content) || String.IsNullOrEmpty(noteDTO.Title) || noteDTO.CreatedAt == null;
+            return String.IsNullOrEmpty(noteDTO.Content) || String.IsNullOrEmpty(noteDTO.Title);
         }
         public void UpdateNote(Note note, UpdateNoteDTO updateNoteDTO)
         {
             note.Title = updateNoteDTO.Title;
             note.Content = updateNoteDTO.Content;
-            note.CreatedAt = updateNoteDTO.CreatedAt;
+            note.CreatedAt = DateTime.UtcNow;
         }
     }
 }
