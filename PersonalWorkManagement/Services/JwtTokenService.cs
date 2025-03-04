@@ -16,6 +16,17 @@ namespace PersonalWorkManagement.Services
         {
             _jwtSettings = jwtSettings.Value;
         }
+
+        public string GenerateRefreshToken()
+        {
+            var randomNumber = new byte[64];
+            using (var rng = System.Security.Cryptography.RandomNumberGenerator.Create())
+            {
+                rng.GetBytes(randomNumber);
+                return Convert.ToBase64String(randomNumber);
+            }
+        }
+
         public string GenerateToken(User user)
         {
             if (user == null)

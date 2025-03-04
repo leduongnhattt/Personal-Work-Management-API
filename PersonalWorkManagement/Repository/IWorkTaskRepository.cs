@@ -5,10 +5,10 @@ namespace PersonalWorkManagement.Repository
     public interface IWorkTaskRepository
     {
         Task CreateWorkTaskAsync(WorkTask workTask);
-        Task<WorkTask?> GetWorkTaskByIdAsync(Guid workTaskId);
+        Task<WorkTask?> GetWorkTaskByIdAsync(string workTaskId);
         Task UpdateWorkTaskAsync(WorkTask workTask);
-        Task DeleteWorkTaskByIdAsync(Guid workTaskId);
-        Task<List<WorkTask>> GetAllWorkTasks(Guid userId);
-        Task<WorkTask> GetWorkTaskByIdAsync(Guid workTaskId, Guid userId);
+        Task DeleteWorkTaskByIdAsync(string workTaskId);
+        Task<List<WorkTask>> GetAllWorkTasks(string userId);
+        Task<WorkTask> GetWorkTaskByIdAsync(string workTaskId, string userId);
     }
 }

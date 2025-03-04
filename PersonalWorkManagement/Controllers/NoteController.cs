@@ -47,13 +47,13 @@ namespace PersonalWorkManagement.Controllers
         }
         [Authorize]
         [HttpPut("updateNote/{noteId}")]
-        public async Task<ActionResult> UpdateNote(Guid noteId, [FromBody] UpdateNoteDTO updateNoteDTO)
+        public async Task<ActionResult> UpdateNote(string noteId, [FromBody] UpdateNoteDTO updateNoteDTO)
         {
             if (updateNoteDTO == null)
             {
                 return BadRequest("Invalid task data.");
             }
-            if (noteId == Guid.Empty)
+            if (noteId == "")
             {
                 return BadRequest("Invalid task id");
             }
@@ -68,20 +68,20 @@ namespace PersonalWorkManagement.Controllers
         }
         [Authorize]
         [HttpDelete("deleteNote/{noteId}")]
-        public async Task<IActionResult> DeleteNote(Guid noteId)
+        public async Task<IActionResult> DeleteNote(string noteId)
         {
             var response = await _noteService.DeleteNoteAsync(noteId);
 
             if (response.Success)
             {
-                return Ok(response.Message);
+                return Ok(new { Message = response.Message });
             }
 
             return BadRequest(response.Message);
         }
         [Authorize]
         [HttpGet("getNote/{noteId}")]
-        public async Task<IActionResult> GetNoteById(Guid noteId)
+        public async Task<IActionResult> GetNoteById(string noteId)
         {
             var response = await _noteService.GetNoteByIdAsync(noteId);
 

@@ -18,7 +18,7 @@ namespace PersonalWorkManagement.Repository
             await _context.SaveChangesAsync();
         }
 
-        public async Task DeleteNoteAsync(Guid noteId)
+        public async Task DeleteNoteAsync(string noteId)
         {
             var note = await _context.Notes.FindAsync(noteId);
             if (note == null)
@@ -29,12 +29,12 @@ namespace PersonalWorkManagement.Repository
             await _context.SaveChangesAsync();
         }
 
-        public async Task<List<Note>> GetAllNotesAsync(Guid userId)
+        public async Task<List<Note>> GetAllNotesAsync(string userId)
         {
             return await _context.Notes.Where(x => x.UserId == userId).ToListAsync();
         }
 
-        public async Task<Note> GetNoteByIdAsync(Guid noteId, Guid userId)
+        public async Task<Note> GetNoteByIdAsync(string noteId, string userId)
         {
             return await _context.Notes.FirstOrDefaultAsync(x => x.NoteId == noteId && x.UserId == userId);
         }

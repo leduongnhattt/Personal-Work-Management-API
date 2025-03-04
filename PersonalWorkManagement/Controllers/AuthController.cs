@@ -49,8 +49,45 @@ namespace PersonalWorkManagement.Controllers
             {
                 return BadRequest(new { Status = "Failed", Message = response.Message });
             }
-
-            return Ok(new { Token = response.Data, Message = response.Message, Status = "Success" });
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                Expires = DateTime.UtcNow.AddHours(1)
+            };
+            Response.Cookies.Append("refreshToken", response.Data.RefreshToken, cookieOptions);
+            return Ok(new
+            {
+                Token = response.Data.AccessToken,
+                Status = "Success"
+            });
+        }
+        [HttpPost("refresh")]
+        public async Task<IActionResult> RefreshTokenAsync()
+        {
+            if (!Request.Cookies.TryGetValue("refreshToken", out string refreshToken))
+            {
+                return Unauthorized(new { Status = "Unauthorized", Message = "Refresh token not found." });
+            }
+            var response = await _userService.RefreshTokenAsync(refreshToken);
+            if (!response.Success)
+            {
+                return Unauthorized(new { Status = "Unauthorized", Message = response.Message });
+            }
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                Expires = DateTime.UtcNow.AddHours(1)
+            };
+            Response.Cookies.Append("refreshToken", response.Data.RefreshToken, cookieOptions);
+            return Ok(new
+            {
+                AccessToken = response.Data.AccessToken,
+                Status = "Success"
+            });
         }
         [Authorize]
         [HttpGet("profile")]

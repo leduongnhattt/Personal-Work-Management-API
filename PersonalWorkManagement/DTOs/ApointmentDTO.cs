@@ -2,7 +2,7 @@
 {
     public class ApointmentDTO
     {
-        public Guid ApointmentId { get; set; }
+        public string ApointmentId { get; set; }
 
         public string? Title { get; set; }
 

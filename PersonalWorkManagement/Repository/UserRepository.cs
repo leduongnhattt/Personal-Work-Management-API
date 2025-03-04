@@ -22,7 +22,7 @@ namespace PersonalWorkManagement.Repository
             await _context.SaveChangesAsync();
         }
 
-        public async Task<User?> GetUserById(Guid userId)
+        public async Task<User?> GetUserById(string userId)
         {
             if (userId == null)
             {

@@ -11,7 +11,7 @@
         public DateTime StartDateApoint { get; set; }
 
         public DateTime EndDateApoint { get; set; }
-
+                
         public int ReminderTime { get; set; }
     }
 }

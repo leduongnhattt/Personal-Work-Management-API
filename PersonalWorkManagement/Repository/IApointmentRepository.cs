@@ -5,9 +5,9 @@ namespace PersonalWorkManagement.Repository
     public interface IApointmentRepository
     {
         Task CreateApointmentAsync(Apointment apointment);
-        Task DeleteApointmentAsync(Guid apointmentId);
+        Task DeleteApointmentAsync(string apointmentId);
         Task UpdateApointmentAsync(Apointment apointment);
-        Task<List<Apointment>> GetAllApointmentAsync(Guid userId);
-        Task<Apointment> GetApointmentByIdAsync(Guid apointmentId, Guid userId);
+        Task<List<Apointment>> GetAllApointmentAsync(string userId);
+        Task<Apointment> GetApointmentByIdAsync(string apointmentId, string userId);
     }
 }

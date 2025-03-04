@@ -42,21 +42,21 @@ namespace PersonalWorkManagement.Services
             }
             var apointment = new Apointment
             {
-                ApointmentId = Guid.NewGuid(),
+                ApointmentId = Guid.NewGuid().ToString(),
                 Title = apointmentDTO.Title,
                 Description = apointmentDTO.Description,
                 Location = apointmentDTO.Location,
                 StartDateApoint = apointmentDTO.StartDateApoint,
                 EndDateApoint = apointmentDTO.EndDateApoint,
                 ReminderTime = apointmentDTO.ReminderTime,
-                UserId = currentUserId.Value,
+                UserId = currentUserId,
             };
             await _repository.CreateApointmentAsync(apointment);
             response.Success = true;
             response.Message = "Apointment created successfully!";
             return response;
         }
-        public async Task<ServiceResponse<string>> UpdateApointmentAsync(Guid apointmentId, UpdateApointmentDTO updateApointmentDTO)
+        public async Task<ServiceResponse<string>> UpdateApointmentAsync(string apointmentId, UpdateApointmentDTO updateApointmentDTO)
         {
             var response = new ServiceResponse<string>();
 
@@ -74,9 +74,9 @@ namespace PersonalWorkManagement.Services
                 response.Message = "User not authenticated!";
                 return response;
             }
-            var apointment = await _repository.GetApointmentByIdAsync(apointmentId, currentUserId.Value);
+            var apointment = await _repository.GetApointmentByIdAsync(apointmentId, currentUserId);
 
-            if (apointment == null || apointment.UserId != currentUserId.Value)
+            if (apointment == null || apointment.UserId != currentUserId)
             {
                 response.Success = false;
                 response.Message = "Apointment not found or you're not authorized to update this apointment.";
@@ -89,7 +89,7 @@ namespace PersonalWorkManagement.Services
             response.Message = "Apointment updated successfully!";
             return response;
         }
-        public async Task<ServiceResponse<string>> DeleteApointmentAsync(Guid apointmentId)
+        public async Task<ServiceResponse<string>> DeleteApointmentAsync(string apointmentId)
         {
             var response = new ServiceResponse<string>();
 
@@ -100,8 +100,8 @@ namespace PersonalWorkManagement.Services
                 return response;
             }
             var currentUserId = await GetAuthenticatedUserIdAsync();
-            var apointment = await _repository.GetApointmentByIdAsync(apointmentId, currentUserId.Value);
-            if (apointment == null || apointment.UserId != currentUserId.Value)
+            var apointment = await _repository.GetApointmentByIdAsync(apointmentId, currentUserId);
+            if (apointment == null || apointment.UserId != currentUserId)
             {
                 response.Success = false;
                 response.Message = "Apointment not found or you're not authorized to delete this apointment.";
@@ -122,7 +122,7 @@ namespace PersonalWorkManagement.Services
                 response.Message = "User not authenticated!";
                 return response;
             }
-            var apointments = await _repository.GetAllApointmentAsync(currentUserId.Value);
+            var apointments = await _repository.GetAllApointmentAsync(currentUserId);
             if (apointments == null || !apointments.Any())
             {
                 response.Success = false;
@@ -143,7 +143,7 @@ namespace PersonalWorkManagement.Services
             response.Message = "Apointments retrieved successfully!";
             return response;
         }
-        public async Task<ServiceResponse<ApointmentDTO>> GetApointmentByIdAsync(Guid apointmentId)
+        public async Task<ServiceResponse<ApointmentDTO>> GetApointmentByIdAsync(string apointmentId)
         {
             var response = new ServiceResponse<ApointmentDTO>();
             var currentUserId = await GetAuthenticatedUserIdAsync();
@@ -153,7 +153,7 @@ namespace PersonalWorkManagement.Services
                 response.Message = "User not authenticated!";
                 return response;
             }
-            var apointment = await _repository.GetApointmentByIdAsync(apointmentId, currentUserId.Value);
+            var apointment = await _repository.GetApointmentByIdAsync(apointmentId, currentUserId);
             if (apointment == null || apointment.UserId != currentUserId)
             {
                 response.Success = false;
@@ -179,14 +179,14 @@ namespace PersonalWorkManagement.Services
         {
             return startDate <= endDate;
         }
-        private async Task<Guid?> GetAuthenticatedUserIdAsync()
+        private async Task<string?> GetAuthenticatedUserIdAsync()
         {
             var userIdClaim = _contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier) ??
-                              _contextAccessor.HttpContext.User.FindFirst(JwtRegisteredClaimNames.Sub);
-            if (userIdClaim == null) return null;
+                              _contextAccessor.HttpContext?.User.FindFirst(JwtRegisteredClaimNames.Sub);
 
-            return Guid.TryParse(userIdClaim.Value, out var userId) ? userId : (Guid?)null;
+            return userIdClaim?.Value;
         }
+
         private void UpdateApointment(Apointment apointment, UpdateApointmentDTO updateApointmentDTO)
         {
             apointment.Title = updateApointmentDTO.Title;

@@ -5,7 +5,7 @@ namespace PersonalWorkManagement.DTOs
 {
     public class WorkTaskDTO
     {
-        public Guid WorkTaskId { get; set; }
+        public string WorkTaskId { get; set; }
 
         public string? Title { get; set; }
 

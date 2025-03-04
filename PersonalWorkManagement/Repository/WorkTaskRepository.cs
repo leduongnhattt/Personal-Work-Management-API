@@ -18,7 +18,7 @@ namespace PersonalWorkManagement.Repository
             await _context.SaveChangesAsync();
         }
 
-        public async Task DeleteWorkTaskByIdAsync(Guid workTaskId)
+        public async Task DeleteWorkTaskByIdAsync(string workTaskId)
         {
             var workTask = await _context.WorkTasks.FindAsync(workTaskId);
             if (workTask != null)
@@ -28,7 +28,7 @@ namespace PersonalWorkManagement.Repository
             }
         }
 
-        public async Task<List<WorkTask>> GetAllWorkTasks(Guid userId)
+        public async Task<List<WorkTask>> GetAllWorkTasks(string userId)
         {
             try
             {
@@ -42,12 +42,12 @@ namespace PersonalWorkManagement.Repository
             }
         }
 
-        public async Task<WorkTask?> GetWorkTaskByIdAsync(Guid workTaskId)
+        public async Task<WorkTask?> GetWorkTaskByIdAsync(string workTaskId)
         {
             return await _context.WorkTasks.FirstOrDefaultAsync(t => t.WorkTaskId == workTaskId);
         }
 
-        public async Task<WorkTask> GetWorkTaskByIdAsync(Guid workTaskId, Guid userId)
+        public async Task<WorkTask> GetWorkTaskByIdAsync(string workTaskId, string userId)
         {
             try
             {

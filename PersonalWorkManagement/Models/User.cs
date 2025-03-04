@@ -5,8 +5,7 @@ namespace PersonalWorkManagement.Models
     public class User
     {
         [Key]
-        public Guid UserId { get; set; }
-
+        public string UserId { get; set; }
         [Required]
         [StringLength(100, ErrorMessage = "Username must be least 100 characters")]
         public string UserName { get; set; }
@@ -22,5 +21,7 @@ namespace PersonalWorkManagement.Models
         public string? ImageUrl { get; set; }
 
         public DateTime CreatedAt { get; set; }
+
+        public ICollection<RefreshToken> RefreshTokens { get; set; }
     }
 }
