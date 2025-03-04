@@ -18,7 +18,7 @@ namespace PersonalWorkManagement.Repository
              await _context.SaveChangesAsync();
         }
 
-        public async Task DeleteApointmentAsync(Guid apointmentId)
+        public async Task DeleteApointmentAsync(string apointmentId)
         {
             var apoinment = await _context.Apointsments.FindAsync(apointmentId);
 
@@ -27,19 +27,14 @@ namespace PersonalWorkManagement.Repository
                 _context.Apointsments.Remove(apoinment);
                 await _context.SaveChangesAsync();
             }
-            throw new NotImplementedException("Not Found Apoinment");
         }
 
-        public async Task<List<Apointment>> GetAllApointmentAsync(Guid userId)
+        public async Task<List<Apointment>> GetAllApointmentAsync(string userId)
         {
             return await _context.Apointsments.Where(a => a.UserId == userId).ToListAsync();
         }
-        public async Task<Apointment?> GetApointmentByIdAsync(Guid apoinmentId)
-        {
-            return await _context.Apointsments.FirstOrDefaultAsync(a => a.ApointmentId == apoinmentId);
-        }
 
-        public async Task<Apointment> GetApointmentByIdAsync(Guid apoinmentId, Guid userId)
+        public async Task<Apointment> GetApointmentByIdAsync(string apoinmentId, string userId)
         {
             return await _context.Apointsments.FirstOrDefaultAsync(a => a.ApointmentId == apoinmentId && a.UserId == userId);
         }

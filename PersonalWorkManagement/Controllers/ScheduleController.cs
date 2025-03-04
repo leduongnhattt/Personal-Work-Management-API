@@ -17,7 +17,7 @@ namespace PersonalWorkManagement.Controllers
         }
         [Authorize]
         [HttpGet("getAll/{userId}")]
-        public async Task<IActionResult> GetAllSchedule(Guid userId)
+        public async Task<IActionResult> GetAllSchedule(string userId)
         {
             if (userId == null)
             {

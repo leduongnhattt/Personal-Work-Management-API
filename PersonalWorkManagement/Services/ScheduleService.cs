@@ -16,7 +16,7 @@ namespace PersonalWorkManagement.Services
             _context = context;
         }
 
-        public async Task<ServiceResponse<object>> GetScheduleAsync(Guid userId)
+        public async Task<ServiceResponse<object>> GetScheduleAsync(string userId)
         {
             var response = new ServiceResponse<object>();
             var currentUser = await _context.Users.FirstOrDefaultAsync(x => x.UserId == userId);

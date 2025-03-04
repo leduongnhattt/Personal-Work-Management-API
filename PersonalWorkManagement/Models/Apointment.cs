@@ -5,7 +5,7 @@ namespace PersonalWorkManagement.Models
     public class Apointment
     {
         [Key]
-        public Guid ApointmentId { get; set; }
+        public string ApointmentId { get; set; }
 
         [Required]
         [MaxLength(100)]
@@ -26,7 +26,7 @@ namespace PersonalWorkManagement.Models
         public int ReminderTime { get; set; }
 
         [Required]
-        public Guid UserId { get; set; }
+        public string UserId { get; set; }
 
         public virtual User? User { get; set; }
 

@@ -46,7 +46,7 @@ namespace PersonalWorkManagement.Services
             }
 
             // Create and save the work task
-            var workTask = CreateWorkTask(workTaskDTO, currentUserId.Value, status);
+            var workTask = CreateWorkTask(workTaskDTO, currentUserId, status);
             await _workTaskRepository.CreateWorkTaskAsync(workTask);
 
             response.Success = true;
@@ -54,7 +54,7 @@ namespace PersonalWorkManagement.Services
             return response;
         }
 
-        public async Task<ServiceResponse<string>> UpdateWorkTaskAsync(Guid workTaskId, UpdateWorkTaskDTO workTaskDTO)
+        public async Task<ServiceResponse<string>> UpdateWorkTaskAsync(string workTaskId, UpdateWorkTaskDTO workTaskDTO)
         {
             var response = new ServiceResponse<string>();
 
@@ -96,7 +96,7 @@ namespace PersonalWorkManagement.Services
             return response;
         }
 
-        public async Task<ServiceResponse<string>> DeleteWorkTaskAsync(Guid workTaskId)
+        public async Task<ServiceResponse<string>> DeleteWorkTaskAsync(string workTaskId)
         {
             var response = new ServiceResponse<string>();
             if (workTaskId == null)
@@ -131,7 +131,7 @@ namespace PersonalWorkManagement.Services
                 response.Message = "User not authenticated!";
                 return response;
             }
-            var workTasks = await _workTaskRepository.GetAllWorkTasks(currentUserId.Value);
+            var workTasks = await _workTaskRepository.GetAllWorkTasks(currentUserId);
             if (workTasks == null || !workTasks.Any())
             {
                 response.Success = false;
@@ -152,7 +152,7 @@ namespace PersonalWorkManagement.Services
             response.Message = "Work tasks retrieved successfully!";
             return response;
         }
-        public async Task<ServiceResponse<WorkTaskDTO>> GetWorkTaskByIdAsync(Guid workTaskId)
+        public async Task<ServiceResponse<WorkTaskDTO>> GetWorkTaskByIdAsync(string workTaskId)
         {
             var response = new ServiceResponse<WorkTaskDTO>();
             var currentUserId = await GetAuthenticatedUserIdAsync();
@@ -188,19 +188,19 @@ namespace PersonalWorkManagement.Services
         {
             return startDate <= endDate;
         }
-        private async Task<Guid?> GetAuthenticatedUserIdAsync()
+        private async Task<string?> GetAuthenticatedUserIdAsync()
         {
             var userIdClaim = _contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier) ??
                               _contextAccessor.HttpContext.User.FindFirst(JwtRegisteredClaimNames.Sub);
             if (userIdClaim == null) return null;
 
-            return Guid.TryParse(userIdClaim.Value, out var userId) ? userId : (Guid?)null;
+            return userIdClaim.Value;
         }
-        private WorkTask CreateWorkTask(AddWorkTaskDTO workTaskDTO, Guid userId, StatusTask status)
+        private WorkTask CreateWorkTask(AddWorkTaskDTO workTaskDTO, string userId, StatusTask status)
         {
             return new WorkTask
             {
-                WorkTaskId = Guid.NewGuid(),
+                WorkTaskId = Guid.NewGuid().ToString(),
                 Title = workTaskDTO.Title,
                 Description = workTaskDTO.Description,
                 StartDateTask = workTaskDTO.StartDateTask,

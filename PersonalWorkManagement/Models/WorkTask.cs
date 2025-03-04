@@ -5,7 +5,7 @@ namespace PersonalWorkManagement.Models
     public class WorkTask
     {
         [Key]
-        public Guid WorkTaskId { get; set; }
+        public string WorkTaskId { get; set; }
 
         [Required]
         [MaxLength(100)]
@@ -26,7 +26,7 @@ namespace PersonalWorkManagement.Models
         public int ReminderTime { get; set; }
 
         [Required]
-        public Guid UserId { get; set; }
+        public string UserId { get; set; }
 
         public virtual User? User { get; set; }
 

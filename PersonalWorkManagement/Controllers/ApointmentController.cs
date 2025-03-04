@@ -47,13 +47,13 @@ namespace PersonalWorkManagement.Controllers
         }
         [Authorize]
         [HttpPut("updateApointment/{apointmentId}")]
-        public async Task<ActionResult> UpdateApointment(Guid apointmentId, [FromBody] UpdateApointmentDTO updateApointmentDTO)
+        public async Task<ActionResult> UpdateApointment(string apointmentId, [FromBody] UpdateApointmentDTO updateApointmentDTO)
         {
             if (updateApointmentDTO == null)
             {
                 return BadRequest("Invalid task data.");
             }
-            if (apointmentId == Guid.Empty)
+            if (apointmentId == string.Empty)
             {
                 return BadRequest("Invalid task id");
             }
@@ -68,20 +68,20 @@ namespace PersonalWorkManagement.Controllers
         }
         [Authorize]
         [HttpDelete("deleteApointment/{apointmentId}")]
-        public async Task<IActionResult> DeleteApointment(Guid apointmentId)
+        public async Task<IActionResult> DeleteApointment(string apointmentId)
         {
             var response = await _apointmentService.DeleteApointmentAsync(apointmentId);
 
             if (response.Success)
             {
-                return Ok(response.Message);
+                return Ok(new { Message = response.Message });
             }
 
             return BadRequest(response.Message);
         }
         [Authorize]
         [HttpGet("getApointment/{apointmentId}")]
-        public async Task<IActionResult> GetApointmentById(Guid apointmentId)
+        public async Task<IActionResult> GetApointmentById(string apointmentId)
         {
             var response = await _apointmentService.GetApointmentByIdAsync(apointmentId);
 

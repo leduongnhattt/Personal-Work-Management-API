@@ -5,7 +5,7 @@ namespace PersonalWorkManagement.Models
     public class Note
     {
         [Key]
-        public Guid NoteId { get; set; }
+        public string NoteId { get; set; }
 
         public string Title { get; set; }
 
@@ -13,7 +13,7 @@ namespace PersonalWorkManagement.Models
 
         public DateTime CreatedAt { get; set; }
 
-        public Guid UserId { get; set; }
+        public string UserId { get; set; }
         public User User { get; set; }
     }
 }

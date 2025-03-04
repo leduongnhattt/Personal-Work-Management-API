@@ -35,25 +35,25 @@ namespace PersonalWorkManagement.Services
             }
             var note = new Note
             {
-                NoteId = Guid.NewGuid(),
+                NoteId = Guid.NewGuid().ToString(),
                 Title = noteDTO.Title,
                 Content = noteDTO.Content,
                 CreatedAt = DateTime.UtcNow,
-                UserId = currentUserId.Value,
+                UserId = currentUserId,
             };
             await _noteRepository.CreateNoteAsync(note);
             response.Success = true;
             response.Message = "Note created successfully!";
             return response;
         }
-        public async Task<ServiceResponse<string>> UpdateNotesAsync(Guid noteId, UpdateNoteDTO updateNoteDTO)
+        public async Task<ServiceResponse<string>> UpdateNotesAsync(string noteId, UpdateNoteDTO updateNoteDTO)
         {
             var response = new ServiceResponse<string>();
             var currentUserId = await GetAuthenticatedUserIdAsync();
 
-            var existingUser = await _noteRepository.GetNoteByIdAsync(noteId, currentUserId.Value);
+            var existingUser = await _noteRepository.GetNoteByIdAsync(noteId, currentUserId);
 
-            if (existingUser == null || currentUserId.Value != existingUser.UserId)
+            if (existingUser == null || currentUserId != existingUser.UserId)
             {
                 response.Success = false;
                 response.Message = "Note not found or you're not authorized to update this note.";
@@ -65,7 +65,7 @@ namespace PersonalWorkManagement.Services
             response.Message = "Note updated successfully!";
             return response;
         }
-        public async Task<ServiceResponse<string>> DeleteNoteAsync(Guid noteId)
+        public async Task<ServiceResponse<string>> DeleteNoteAsync(string noteId)
         {
             var response = new ServiceResponse<string>();
             if (noteId == null)
@@ -75,9 +75,9 @@ namespace PersonalWorkManagement.Services
                 return response;
             }
             var currentUserId = await GetAuthenticatedUserIdAsync();
-            var existingUser = await _noteRepository.GetNoteByIdAsync(noteId, currentUserId.Value);
+            var existingUser = await _noteRepository.GetNoteByIdAsync(noteId, currentUserId);
 
-            if (existingUser == null || currentUserId.Value != existingUser.UserId)
+            if (existingUser == null || currentUserId != existingUser.UserId)
             {
                 response.Success = false;
                 response.Message = "Note not found or you're not authorized to delete this note.";
@@ -98,7 +98,7 @@ namespace PersonalWorkManagement.Services
                 response.Message = "User note authenticated!";
                 return response;
             }
-            var notes = await _noteRepository.GetAllNotesAsync(currentUserId.Value);
+            var notes = await _noteRepository.GetAllNotesAsync(currentUserId);
             response.Success = true;
             response.Message = "Retrived successfully!";
             response.Data = notes.Select(note => new NoteDTO
@@ -110,7 +110,7 @@ namespace PersonalWorkManagement.Services
             }).ToList();
             return response;
         }
-        public async Task<ServiceResponse<NoteDTO>> GetNoteByIdAsync(Guid noteId)
+        public async Task<ServiceResponse<NoteDTO>> GetNoteByIdAsync(string noteId)
         {
             var response = new ServiceResponse<NoteDTO>();
             var currentUserId = await GetAuthenticatedUserIdAsync();
@@ -120,9 +120,9 @@ namespace PersonalWorkManagement.Services
                 response.Message = "User note authenticated!";
                 return response;
             }
-            var existingUser = await _noteRepository.GetNoteByIdAsync(noteId, currentUserId.Value);
+            var existingUser = await _noteRepository.GetNoteByIdAsync(noteId, currentUserId);
 
-            if (existingUser == null || currentUserId.Value != existingUser.UserId)
+            if (existingUser == null || currentUserId != existingUser.UserId)
             {
                 response.Success = false;
                 response.Message = "Note not found or you're not authorized to retrive this note.";
@@ -139,15 +139,11 @@ namespace PersonalWorkManagement.Services
             };
             return response;
         }
-        private async Task<Guid?> GetAuthenticatedUserIdAsync()
+        private async Task<string?> GetAuthenticatedUserIdAsync()
         {
             var userIdClaim = _contextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier) ??
                 _contextAccessor.HttpContext.User.FindFirst(JwtRegisteredClaimNames.Sub);
-            if (userIdClaim == null)
-            {
-                return Guid.Empty;
-            }
-            return Guid.TryParse(userIdClaim.Value, out var userId) ? userId : (Guid.Empty);
+            return userIdClaim?.Value;
         }
         private bool isNull(UpdateNoteDTO noteDTO)
         {

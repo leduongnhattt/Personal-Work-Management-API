@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace PersonalWorkManagement.Migrations
 {
     /// <inheritdoc />
-    public partial class InitModelForDB : Migration
+    public partial class InitDB : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -15,10 +15,12 @@ namespace PersonalWorkManagement.Migrations
                 name: "Users",
                 columns: table => new
                 {
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     UserName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Email = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    SDT = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
@@ -30,14 +32,14 @@ namespace PersonalWorkManagement.Migrations
                 name: "Apointsments",
                 columns: table => new
                 {
-                    ApointmentId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ApointmentId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Title = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     Location = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
-                    StartDateTask = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    EndDateTask = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ReminderTime = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    StartDateApoint = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    EndDateApoint = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ReminderTime = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -54,17 +56,39 @@ namespace PersonalWorkManagement.Migrations
                 name: "Notes",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    NoteId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Notes", x => x.Id);
+                    table.PrimaryKey("PK_Notes", x => x.NoteId);
                     table.ForeignKey(
                         name: "FK_Notes_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "UserId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "RefreshTokens",
+                columns: table => new
+                {
+                    TokenID = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Token = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ExpiryDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsRevoked = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RefreshTokens", x => x.TokenID);
+                    table.ForeignKey(
+                        name: "FK_RefreshTokens_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "UserId",
@@ -75,24 +99,18 @@ namespace PersonalWorkManagement.Migrations
                 name: "WorkTasks",
                 columns: table => new
                 {
-                    WorkTaskId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    WorkTaskId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Title = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     StartDateTask = table.Column<DateTime>(type: "datetime2", nullable: false),
                     EndDateTask = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
-                    ReminderTime = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ApointmentId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    ReminderTime = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_WorkTasks", x => x.WorkTaskId);
-                    table.ForeignKey(
-                        name: "FK_WorkTasks_Apointsments_ApointmentId",
-                        column: x => x.ApointmentId,
-                        principalTable: "Apointsments",
-                        principalColumn: "ApointmentId");
                     table.ForeignKey(
                         name: "FK_WorkTasks_Users_UserId",
                         column: x => x.UserId,
@@ -112,9 +130,9 @@ namespace PersonalWorkManagement.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_WorkTasks_ApointmentId",
-                table: "WorkTasks",
-                column: "ApointmentId");
+                name: "IX_RefreshTokens_UserId",
+                table: "RefreshTokens",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_WorkTasks_UserId",
@@ -126,13 +144,16 @@ namespace PersonalWorkManagement.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "Apointsments");
+
+            migrationBuilder.DropTable(
                 name: "Notes");
 
             migrationBuilder.DropTable(
-                name: "WorkTasks");
+                name: "RefreshTokens");
 
             migrationBuilder.DropTable(
-                name: "Apointsments");
+                name: "WorkTasks");
 
             migrationBuilder.DropTable(
                 name: "Users");

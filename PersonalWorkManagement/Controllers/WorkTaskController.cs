@@ -46,13 +46,13 @@ namespace PersonalWorkManagement.Controllers
         }
         [Authorize]
         [HttpPut("updateTask/{workTaskId}")]
-        public async Task<ActionResult> UpdateWorkTask(Guid workTaskId, [FromBody] UpdateWorkTaskDTO workTaskDTO)
+        public async Task<ActionResult> UpdateWorkTask(string workTaskId, [FromBody] UpdateWorkTaskDTO workTaskDTO)
         {
             if (workTaskDTO == null)
             {
                 return BadRequest("Invalid task data.");
             }
-            if (workTaskId == Guid.Empty)
+            if (workTaskId == string.Empty)
             {
                 return BadRequest("Invalid task id");
             }
@@ -67,20 +67,20 @@ namespace PersonalWorkManagement.Controllers
         }
         [Authorize]
         [HttpDelete("deleteTask/{workTaskId}")]
-        public async Task<IActionResult> DeleteWorkTask(Guid workTaskId)
+        public async Task<IActionResult> DeleteWorkTask(string workTaskId)
         {
             var response = await _workTaskServices.DeleteWorkTaskAsync(workTaskId);
 
             if (response.Success)
             {
-                return Ok(response.Message);
+                return Ok(new { Message = response.Message });
             }
 
             return BadRequest(response.Message);
         }
         [Authorize]
         [HttpGet("getTaskById/{workTaskId}")]
-        public async Task<IActionResult> GetTaskById(Guid workTaskId)
+        public async Task<IActionResult> GetTaskById(string workTaskId)
         {
             var response = await _workTaskServices.GetWorkTaskByIdAsync(workTaskId);
 

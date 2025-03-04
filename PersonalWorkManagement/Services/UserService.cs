@@ -15,14 +15,16 @@ namespace PersonalWorkManagement.Services
         private readonly IPasswordHasher<User> _passwordHasher;
         private readonly IJwtTokenService _jwtTokenService;
         private readonly IHttpContextAccessor _contextAccessor;
+        private readonly IRefreshTokenRepository _refreshTokenRepository;
         private readonly string _imageFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
 
-        public UserService(IUserRepository userRepository, IPasswordHasher<User> passwordHasher, IJwtTokenService jwtTokenService, IHttpContextAccessor contextAccessor)
+        public UserService(IUserRepository userRepository, IPasswordHasher<User> passwordHasher, IJwtTokenService jwtTokenService, IHttpContextAccessor contextAccessor, IRefreshTokenRepository refreshTokenRepository)
         {
             _userRepository = userRepository;
             _passwordHasher = passwordHasher;
             _jwtTokenService = jwtTokenService;
             _contextAccessor = contextAccessor;
+            _refreshTokenRepository = refreshTokenRepository;
         }
         public async Task<ServiceResponse<string>> RegisterUserAsync(RegisterUserDTO registerUserDTO)
         {
@@ -44,6 +46,7 @@ namespace PersonalWorkManagement.Services
             }
             var user = new User
             {
+                UserId = Guid.NewGuid().ToString(),
                 UserName = registerUserDTO.Username,
                 Email = registerUserDTO.Email,
                 SDT = registerUserDTO.SDT,
@@ -58,9 +61,9 @@ namespace PersonalWorkManagement.Services
             return response;
         }
 
-        public async Task<ServiceResponse<string>> LoginUserAsync(UserDTO userDTO)
+        public async Task<ServiceResponse<TokenResponseDTO>> LoginUserAsync(UserDTO userDTO)
         {
-            var response = new ServiceResponse<string>();
+            var response = new ServiceResponse<TokenResponseDTO>();
             var user = await _userRepository.GetUserByUserName(userDTO.UserName);
 
             if (user == null)
@@ -77,9 +80,57 @@ namespace PersonalWorkManagement.Services
                 return response;
             }
             var token = _jwtTokenService.GenerateToken(user);
+            var refreshToken = _jwtTokenService.GenerateRefreshToken();
+            var refreshTokenEntity = new RefreshToken
+            {
+                TokenID = Guid.NewGuid().ToString(),
+                UserId = user.UserId,
+                Token = refreshToken,
+                ExpiryDate = DateTime.UtcNow.AddDays(7),
+                CreatedAt = DateTime.UtcNow,
+                IsRevoked = false
+            };
+            await _refreshTokenRepository.SaveRefreshTokenAsync(refreshTokenEntity);
             response.Success = true;
             response.Message = "Login successful.";
-            response.Data = token;
+            response.Data = new TokenResponseDTO
+            {
+                AccessToken = token,
+                RefreshToken = refreshToken
+            };
+            return response;
+        }
+        public async Task<ServiceResponse<TokenResponseDTO>> RefreshTokenAsync(string refreshToken)
+        {
+            var response = new ServiceResponse<TokenResponseDTO>();
+            var storedToken = await _refreshTokenRepository.GetRefreshTokenAsync(refreshToken);
+            if (storedToken == null || storedToken.IsRevoked || storedToken.ExpiryDate < DateTime.UtcNow)
+            {
+                response.Success = false;
+                response.Message = "Invalid refresh token.";
+                return response;
+            }
+            var user = await _userRepository.GetUserById(storedToken.UserId);
+            if (user == null)
+            {
+                response.Success = false;
+                response.Message = "User not found.";
+                return response;
+            }
+            var newAccessToken = _jwtTokenService.GenerateToken(user);
+            var newRefreshToken = _jwtTokenService.GenerateRefreshToken();
+            storedToken.Token = newRefreshToken;
+            storedToken.ExpiryDate = DateTime.UtcNow.AddDays(7);
+            storedToken.CreatedAt = DateTime.UtcNow;
+            storedToken.IsRevoked = true;
+            await _refreshTokenRepository.UpdateRefreshTokenAsync(storedToken);
+            response.Data = new TokenResponseDTO
+            {
+                AccessToken = newAccessToken,
+                RefreshToken = newRefreshToken
+            };
+            response.Success = true;
+            response.Message = "Token refreshed successfully.";
             return response;
         }
         public async Task<ServiceResponse<ProfileUserDTO>> GetUserProfile()
@@ -93,7 +144,7 @@ namespace PersonalWorkManagement.Services
                 response.Message = "User not authenticated!";
                 return response;
             }
-            var currentUserId = Guid.Parse(userIdClaim.Value);
+            var currentUserId = userIdClaim.Value;
             User user = await _userRepository.GetUserById(currentUserId);
             var data = new ProfileUserDTO
             {
@@ -185,7 +236,7 @@ namespace PersonalWorkManagement.Services
             return response;
         }
 
-        private Guid GetCurrentUserId()
+        private string GetCurrentUserId()
         {
             var userIdClaim = _contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)
                                ?? _contextAccessor.HttpContext.User.FindFirst(JwtRegisteredClaimNames.Sub);
@@ -195,7 +246,7 @@ namespace PersonalWorkManagement.Services
                 throw new UnauthorizedAccessException("User not authenticated!");
             }
 
-            return Guid.Parse(userIdClaim.Value);
+            return userIdClaim.Value;
         }
 
     }

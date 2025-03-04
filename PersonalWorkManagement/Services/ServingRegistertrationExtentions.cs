@@ -18,6 +18,7 @@ namespace PersonalWorkManagement.Services
             services.AddScoped<NoteService>();
             services.AddScoped<ScheduleService>();
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
             services.AddScoped<IWorkTaskRepository, WorkTaskRepository>();
             services.AddScoped<IApointmentRepository, ApointmentRepository>();
             services.AddScoped<INoteRepository, NoteRepository>();

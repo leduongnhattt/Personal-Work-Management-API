@@ -24,9 +24,8 @@ namespace PersonalWorkManagement.Migrations
 
             modelBuilder.Entity("PersonalWorkManagement.Models.Apointment", b =>
                 {
-                    b.Property<Guid>("ApointmentId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("ApointmentId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Description")
                         .HasMaxLength(500)
@@ -50,8 +49,9 @@ namespace PersonalWorkManagement.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("ApointmentId");
 
@@ -62,9 +62,8 @@ namespace PersonalWorkManagement.Migrations
 
             modelBuilder.Entity("PersonalWorkManagement.Models.Note", b =>
                 {
-                    b.Property<Guid>("NoteId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("NoteId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Content")
                         .IsRequired()
@@ -77,8 +76,9 @@ namespace PersonalWorkManagement.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("NoteId");
 
@@ -87,11 +87,39 @@ namespace PersonalWorkManagement.Migrations
                     b.ToTable("Notes");
                 });
 
+            modelBuilder.Entity("PersonalWorkManagement.Models.RefreshToken", b =>
+                {
+                    b.Property<string>("TokenID")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("ExpiryDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsRevoked")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("TokenID");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("RefreshTokens");
+                });
+
             modelBuilder.Entity("PersonalWorkManagement.Models.User", b =>
                 {
-                    b.Property<Guid>("UserId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -124,9 +152,8 @@ namespace PersonalWorkManagement.Migrations
 
             modelBuilder.Entity("PersonalWorkManagement.Models.WorkTask", b =>
                 {
-                    b.Property<Guid>("WorkTaskId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("WorkTaskId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Description")
                         .HasMaxLength(500)
@@ -149,8 +176,9 @@ namespace PersonalWorkManagement.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("WorkTaskId");
 
@@ -181,6 +209,17 @@ namespace PersonalWorkManagement.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("PersonalWorkManagement.Models.RefreshToken", b =>
+                {
+                    b.HasOne("PersonalWorkManagement.Models.User", "User")
+                        .WithMany("RefreshTokens")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("PersonalWorkManagement.Models.WorkTask", b =>
                 {
                     b.HasOne("PersonalWorkManagement.Models.User", "User")
@@ -190,6 +229,11 @@ namespace PersonalWorkManagement.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("PersonalWorkManagement.Models.User", b =>
+                {
+                    b.Navigation("RefreshTokens");
                 });
 #pragma warning restore 612, 618
         }
