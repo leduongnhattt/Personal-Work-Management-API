@@ -20,8 +20,7 @@ namespace PersonalWorkManagement.Models
 
         public string? ImageUrl { get; set; }
 
-        public DateTime CreatedAt { get; set; }
-
+        public DateTime CreatedAt { get; set; }     
         public ICollection<RefreshToken> RefreshTokens { get; set; }
     }
 }

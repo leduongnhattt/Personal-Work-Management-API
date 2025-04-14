@@ -1,5 +1,4 @@
-﻿
-using Azure;
+﻿using Azure;
 using Microsoft.AspNetCore.Identity;
 using PersonalWorkManagement.DTOs;
 using PersonalWorkManagement.Models;
@@ -61,7 +60,7 @@ namespace PersonalWorkManagement.Services
             return response;
         }
 
-        public async Task<ServiceResponse<TokenResponseDTO>> LoginUserAsync(UserDTO userDTO)
+        public async Task<ServiceResponse<TokenResponseDTO>> LoginUserAsync(UserDTO userDTO, string ipAddress, string userAgent)
         {
             var response = new ServiceResponse<TokenResponseDTO>();
             var user = await _userRepository.GetUserByUserName(userDTO.UserName);
@@ -72,6 +71,7 @@ namespace PersonalWorkManagement.Services
                 response.Message = "User not found.";
                 return response;
             }
+
             var passwordVerification = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, userDTO.Password);
             if (passwordVerification != PasswordVerificationResult.Success)
             {
@@ -79,8 +79,13 @@ namespace PersonalWorkManagement.Services
                 response.Message = "Incorrect password.";
                 return response;
             }
+
+            // Revoke all existing refresh tokens for this user
+            await _refreshTokenRepository.RevokeAllRefreshTokensForUserAsync(user.UserId, "New login");
+
             var token = _jwtTokenService.GenerateToken(user);
             var refreshToken = _jwtTokenService.GenerateRefreshToken();
+            
             var refreshTokenEntity = new RefreshToken
             {
                 TokenID = Guid.NewGuid().ToString(),
@@ -88,9 +93,13 @@ namespace PersonalWorkManagement.Services
                 Token = refreshToken,
                 ExpiryDate = DateTime.UtcNow.AddDays(7),
                 CreatedAt = DateTime.UtcNow,
-                IsRevoked = false
+                IsRevoked = false,
+                IPAddress = ipAddress,
+                UserAgent = userAgent
             };
+
             await _refreshTokenRepository.SaveRefreshTokenAsync(refreshTokenEntity);
+
             response.Success = true;
             response.Message = "Login successful.";
             response.Data = new TokenResponseDTO
@@ -104,12 +113,28 @@ namespace PersonalWorkManagement.Services
         {
             var response = new ServiceResponse<TokenResponseDTO>();
             var storedToken = await _refreshTokenRepository.GetRefreshTokenAsync(refreshToken);
-            if (storedToken == null || storedToken.IsRevoked || storedToken.ExpiryDate < DateTime.UtcNow)
+            
+            if (storedToken == null)
             {
                 response.Success = false;
                 response.Message = "Invalid refresh token.";
                 return response;
             }
+
+            if (storedToken.IsRevoked)
+            {
+                response.Success = false;
+                response.Message = "Refresh token has been revoked.";
+                return response;
+            }
+
+            if (storedToken.ExpiryDate < DateTime.UtcNow)
+            {
+                response.Success = false;
+                response.Message = "Refresh token has expired.";
+                return response;
+            }
+
             var user = await _userRepository.GetUserById(storedToken.UserId);
             if (user == null)
             {
@@ -117,13 +142,17 @@ namespace PersonalWorkManagement.Services
                 response.Message = "User not found.";
                 return response;
             }
+
+            // Generate new tokens
             var newAccessToken = _jwtTokenService.GenerateToken(user);
             var newRefreshToken = _jwtTokenService.GenerateRefreshToken();
+
+            // Update the existing refresh token
             storedToken.Token = newRefreshToken;
             storedToken.ExpiryDate = DateTime.UtcNow.AddDays(7);
             storedToken.CreatedAt = DateTime.UtcNow;
-            storedToken.IsRevoked = true;
             await _refreshTokenRepository.UpdateRefreshTokenAsync(storedToken);
+
             response.Data = new TokenResponseDTO
             {
                 AccessToken = newAccessToken,
@@ -136,24 +165,43 @@ namespace PersonalWorkManagement.Services
         public async Task<ServiceResponse<ProfileUserDTO>> GetUserProfile()
         {
             var response = new ServiceResponse<ProfileUserDTO>();
-            var userIdClaim = _contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier) ??
-                  _contextAccessor.HttpContext.User.FindFirst(JwtRegisteredClaimNames.Sub);
+            
+            if (_contextAccessor.HttpContext == null)
+            {
+                response.Success = false;
+                response.Message = "HTTP context not available!";
+                return response;
+            }
+
+            var userIdClaim = _contextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier) ??
+                              _contextAccessor.HttpContext.User.FindFirst(JwtRegisteredClaimNames.Sub);
+                      
             if (userIdClaim == null)
             {
                 response.Success = false;
                 response.Message = "User not authenticated!";
                 return response;
             }
+
             var currentUserId = userIdClaim.Value;
-            User user = await _userRepository.GetUserById(currentUserId);
+            var user = await _userRepository.GetUserById(currentUserId);
+            
+            if (user == null)
+            {
+                response.Success = false;
+                response.Message = "User not found!";
+                return response;
+            }
+
             var data = new ProfileUserDTO
             {
                 UserId = currentUserId,
                 UserName = user.UserName,
                 Email = user.Email,
                 SDT = user.SDT,
-                Image = user.ImageUrl
+                Image = user.ImageUrl ?? string.Empty
             };
+            
             response.Success = true;
             response.Data = data;
             return response;
@@ -238,8 +286,13 @@ namespace PersonalWorkManagement.Services
 
         private string GetCurrentUserId()
         {
-            var userIdClaim = _contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)
-                               ?? _contextAccessor.HttpContext.User.FindFirst(JwtRegisteredClaimNames.Sub);
+            if (_contextAccessor.HttpContext == null)
+            {
+                throw new UnauthorizedAccessException("HTTP context not available!");
+            }
+
+            var userIdClaim = _contextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)
+                   ?? _contextAccessor.HttpContext.User.FindFirst(JwtRegisteredClaimNames.Sub);
 
             if (userIdClaim == null)
             {

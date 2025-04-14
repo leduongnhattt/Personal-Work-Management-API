@@ -43,52 +43,65 @@ namespace PersonalWorkManagement.Controllers
             {
                 return BadRequest(new { Message = "Invalid user data." });
             }
-            var response = await _userService.LoginUserAsync(userDTO);
+
+            var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+            var userAgent = HttpContext.Request.Headers["User-Agent"].ToString();
+
+            var response = await _userService.LoginUserAsync(userDTO, ipAddress, userAgent);
 
             if (!response.Success)
             {
                 return BadRequest(new { Status = "Failed", Message = response.Message });
             }
-            var cookieOptions = new CookieOptions
+
+            Response.Cookies.Append("refreshToken", response.Data.RefreshToken, new CookieOptions
             {
                 HttpOnly = true,
                 Secure = true,
                 SameSite = SameSiteMode.None,
-                Expires = DateTime.UtcNow.AddHours(1)
-            };
-            Response.Cookies.Append("refreshToken", response.Data.RefreshToken, cookieOptions);
-            return Ok(new
-            {
-                Token = response.Data.AccessToken,
-                Status = "Success"
+                Expires = DateTime.UtcNow.AddDays(7)
             });
-        }
-        [HttpPost("refresh")]
-        public async Task<IActionResult> RefreshTokenAsync()
-        {
-            if (!Request.Cookies.TryGetValue("refreshToken", out string refreshToken))
-            {
-                return Unauthorized(new { Status = "Unauthorized", Message = "Refresh token not found." });
-            }
-            var response = await _userService.RefreshTokenAsync(refreshToken);
-            if (!response.Success)
-            {
-                return Unauthorized(new { Status = "Unauthorized", Message = response.Message });
-            }
-            var cookieOptions = new CookieOptions
-            {
-                HttpOnly = true,
-                Secure = true,
-                SameSite = SameSiteMode.None,
-                Expires = DateTime.UtcNow.AddHours(1)
-            };
-            Response.Cookies.Append("refreshToken", response.Data.RefreshToken, cookieOptions);
+
             return Ok(new
             {
                 AccessToken = response.Data.AccessToken,
                 Status = "Success"
             });
         }
+        [HttpPost("refresh")]
+        public async Task<IActionResult> RefreshTokenAsync()
+        {
+            if (!Request.Cookies.TryGetValue("refreshToken", out var refreshToken) || string.IsNullOrEmpty(refreshToken))
+            {
+                return Unauthorized(new { Status = "Failed", Message = "No refresh token found." });
+            }
+
+            var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+            var userAgent = HttpContext.Request.Headers["User-Agent"].ToString();
+
+            var response = await _userService.RefreshTokenAsync(refreshToken);
+            if (!response.Success)
+            {
+                // If refresh token is invalid, remove it from cookies
+                Response.Cookies.Delete("refreshToken");
+                return Unauthorized(new { Status = "Failed", Message = response.Message });
+            }
+
+            Response.Cookies.Append("refreshToken", response.Data.RefreshToken, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                Expires = DateTime.UtcNow.AddDays(7)
+            });
+
+            return Ok(new
+            {
+                AccessToken = response.Data.AccessToken,
+                Status = "Success"
+            });
+        }
+
         [Authorize]
         [HttpGet("profile")]
         public async Task<IActionResult> GetUser()
@@ -117,7 +130,7 @@ namespace PersonalWorkManagement.Controllers
             return Ok(new { Status = "Success", Message = response.Message});
         }
         [Authorize]
-        [HttpPut("password")]
+        [HttpPut("update-password")]
         public async Task<IActionResult> UpdatePassword([FromBody] UpdatePasswordUserDTO updatePasswordUserDTO)
         {
 

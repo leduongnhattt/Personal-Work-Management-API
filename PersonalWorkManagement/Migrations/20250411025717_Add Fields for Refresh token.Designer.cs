@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PersonalWorkManagement.Models;
 
@@ -11,9 +12,11 @@ using PersonalWorkManagement.Models;
 namespace PersonalWorkManagement.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250411025717_Add Fields for Refresh token")]
+    partial class AddFieldsforRefreshtoken
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -131,33 +134,6 @@ namespace PersonalWorkManagement.Migrations
                     b.ToTable("RefreshTokens");
                 });
 
-            modelBuilder.Entity("PersonalWorkManagement.Models.SocialLink", b =>
-                {
-                    b.Property<string>("SocialLinkId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Platform")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Url")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("SocialLinkId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("SocialLinks");
-                });
-
             modelBuilder.Entity("PersonalWorkManagement.Models.User", b =>
                 {
                     b.Property<string>("UserId")
@@ -255,17 +231,6 @@ namespace PersonalWorkManagement.Migrations
                 {
                     b.HasOne("PersonalWorkManagement.Models.User", "User")
                         .WithMany("RefreshTokens")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("PersonalWorkManagement.Models.SocialLink", b =>
-                {
-                    b.HasOne("PersonalWorkManagement.Models.User", "User")
-                        .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();

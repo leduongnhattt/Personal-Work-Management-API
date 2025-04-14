@@ -11,5 +11,6 @@ namespace PersonalWorkManagement.Models
         public DbSet<WorkTask> WorkTasks { get; set; }
         public DbSet<Apointment> Apointsments { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
+        public DbSet<SocialLink> SocialLinks { get; set; }
     }
 }

@@ -20,6 +20,16 @@ namespace PersonalWorkManagement.Models
         [Required]
         public string UserId { get; set; }
 
+        public string? IPAddress { get; set; }
+
+        public string? UserAgent { get; set; }
+
+        public string? PreviousToken { get; set; }
+
+        public DateTime? RevokedAt { get; set; }
+
+        public string? RevokedReason { get; set; }
+
         [ForeignKey("UserId")]
         public virtual User User { get; set; }
     }

@@ -38,11 +38,12 @@ namespace PersonalWorkManagement.Controllers
         {
             var response = await _workTaskServices.GetAllWorkTaskAsync();
 
-            if (response.Success)
+            if (!response.Success)
             {
-                return Ok(new { Message = response.Message, Data = response.Data });
+                return BadRequest(response.Message);
+                
             }
-            return BadRequest(response.Message);
+            return Ok(new { Message = response.Message, Data = response.Data });
         }
         [Authorize]
         [HttpPut("updateTask/{workTaskId}")]

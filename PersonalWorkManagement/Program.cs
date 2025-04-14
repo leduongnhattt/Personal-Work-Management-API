@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
+using PersonalWorkManagement.Middleware;
 using PersonalWorkManagement.Models;
 using PersonalWorkManagement.Repository;
 using PersonalWorkManagement.Services;
@@ -10,16 +11,18 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Cấu hình CORS để cho phép tất cả các domain
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(builder =>
+    options.AddPolicy("AllowAll", policy =>
     {
-        builder.AllowAnyOrigin()
-       .AllowAnyHeader()
-       .AllowAnyMethod();
+        policy.WithOrigins("http://localhost:4200")
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .AllowCredentials();
     });
 });
+
 builder.Services.AddApplicationServices(builder.Configuration);
 builder.Services.AddControllers();
 
@@ -41,25 +44,29 @@ builder.Services.AddAuthentication(options =>
     };
 });
 builder.Services.AddAuthorization();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddScoped<ISocialLinkRepository, SocialLinkRepository>();
+builder.Services.AddScoped<SocialLinkService>();
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseCors("AllowAll"); // Áp dụng chính sách CORS cho tất cả các request
 app.UseStaticFiles();
-
-app.UseCors();
-
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Add token refresh middleware
+app.UseMiddleware<TokenRefreshMiddleware>();
 
 app.MapControllers();
 
